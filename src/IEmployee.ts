@@ -1,9 +1,9 @@
 export interface IEmployee {
 
-    employeeId:number;
-    birthDate:Date;
+    employeeID:number;
+    birthDate:string;
     title:string;
     firstName:string;
     lastName:string;
-    departmentId:number;
+    departmentID:number;
 }
