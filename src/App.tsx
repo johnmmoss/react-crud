@@ -8,21 +8,37 @@ import EmployeeForm from './components/EmployeeForm';
 function App() {
 
   const [employees, setEmployees] = useState([] as IEmployee[]);
-  const [editEmployee, setEditEmployee] = useState({} as IEmployee)
-
+  const [updatedEmployee, setUpdatedEmployee] = useState({} as IEmployee);
+  const [currentEmployee, setCurrentEmployee] = useState({} as IEmployee);
   const [showModal, setShowModal] = useState(false);
-  const toggleModal = () => setShowModal(!showModal);
 
   useEffect(() => {
     loadEmployees();
   }, []);
 
+  const toggleModal = (employee?: IEmployee) => {
+    if (employee !== undefined) {
+      setCurrentEmployee(employee);
+    } else {
+      setCurrentEmployee({} as IEmployee);
+    }
+    setShowModal(!showModal);
+  }
+
   const deleteEmployeeHandler = (employeeID: number) => {
     deleteEmployee(employeeID);
   }
 
-  const editEmployeeUpdatedHandler = (updatedEmployee:IEmployee) => {
-    setEditEmployee(updatedEmployee);
+  const employeeChangedHandler = (updatedEmployee: IEmployee) => {
+    setUpdatedEmployee(updatedEmployee);
+  }
+
+  const employeeSaveHandler = () => {
+    if (updatedEmployee.employeeID === 0) {
+      addEmployee(updatedEmployee);
+    } else {
+      updateEmployee(updatedEmployee);
+    }
   }
 
   function loadEmployees() {
@@ -46,6 +62,11 @@ function App() {
       .then(res => console.log(res))
       .then(() => loadEmployees())
       .catch(error => console.error('Error:', error));
+  }
+
+  function updateEmployee(employee:IEmployee) {
+    console.log("Updating Employee...");
+    console.log(employee);
   }
 
   function deleteEmployee(employeeID: number) {
@@ -86,7 +107,11 @@ function App() {
             </thead>
             <tbody>
               {
-                employees.map(x => <Employee onDeleteClickHandler={deleteEmployeeHandler} key={x.employeeID} data={x} />)
+                employees.map(x => <Employee
+                  key={x.employeeID}
+                  data={x}
+                  toggleModal={toggleModal}
+                  onDeleteClickHandler={deleteEmployeeHandler} />)
               }
             </tbody>
           </table>
@@ -94,15 +119,15 @@ function App() {
       </Container>
       <Container>
         <Row className="mt-4">
-          <Button color="primary" onClick={toggleModal}>Add New Employee</Button>
-          <Modal isOpen={showModal} toggle={toggleModal} className="one">
-            <ModalHeader toggle={toggleModal}>Add Employee</ModalHeader>
+          <Button color="primary" onClick={() => toggleModal()}>Add New Employee</Button>
+          <Modal isOpen={showModal} toggle={() => toggleModal()} className="one">
+            <ModalHeader toggle={() => toggleModal()}>Add Employee</ModalHeader>
             <ModalBody>
-              <EmployeeForm onEmployeeChange={editEmployeeUpdatedHandler} />
+              <EmployeeForm onEmployeeChanged={employeeChangedHandler} current={currentEmployee} />
             </ModalBody>
             <ModalFooter>
-              <Button color="primary" onClick={() => { addEmployee(editEmployee); toggleModal();}}>Add</Button>{' '}
-              <Button color="secondary" onClick={toggleModal}>Cancel</Button>
+              <Button color="primary" onClick={() => { employeeSaveHandler(); toggleModal(); }}>Add</Button>{' '}
+              <Button color="secondary" onClick={() => toggleModal()}>Cancel</Button>
             </ModalFooter>
           </Modal>
         </Row>
@@ -117,6 +142,8 @@ const Employee = (props: any) => (
     <td>{props.data.firstName}</td>
     <td>{props.data.lastName}</td>
     <td>
+      <Button color="primary" onClick={() => props.toggleModal(props.data)}>Edit</Button>
+      &nbsp;
       <ConfirmModal
         buttonLabel='Delete'
         title='Confirm Delete'

@@ -13,7 +13,7 @@ const ConfirmModal = (props: any) => {
   const toggle = () => setModal(!modal);
 
   return (
-    <div>
+    <>
       <Button color="danger" onClick={toggle}>{buttonLabel}</Button>
       <Modal isOpen={modal} toggle={toggle} className={className}>
         <ModalHeader toggle={toggle}>{props.title}</ModalHeader>
@@ -30,7 +30,7 @@ const ConfirmModal = (props: any) => {
             </Button>
         </ModalFooter>
       </Modal>
-    </div>
+    </>
   );
 }
 

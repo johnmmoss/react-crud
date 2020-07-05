@@ -1,24 +1,27 @@
 import React, { useState, useEffect } from 'react';
-import { Button, Form, FormGroup, Label, Input, Col } from 'reactstrap';
+import { Form, FormGroup, Label, Input, Col } from 'reactstrap';
 import { IEmployee } from '../IEmployee';
+import moment from 'moment'
 
 const EmployeeForm = (props: any) => {
 
-    const [title, setTitle] = useState('');
-    const [firstName, setFirstName] = useState('');
-    const [lastName, setLastName] = useState('');
-    const [birthday, setBirthday] = useState('');
+    const [title, setTitle] = useState(props.current.title !== undefined ? props.current.title : '');
+    const [employeeID, setEmployeeID] = useState(props.current.employeeID !== undefined ? props.current.employeeID : 0);
+    const [firstName, setFirstName] = useState(props.current.firstName !== undefined ? props.current.firstName : '');
+    const [lastName, setLastName] = useState(props.current.lastName !== undefined ? props.current.lastName : '');
+    const [birthday, setBirthday] = useState(props.current.birthDate !== undefined ? moment(props.current.birthDate).format('YYYY-MM-DD') : '');
 
     useEffect(() => {
-        const current: IEmployee = {
-            employeeID: 0,
+        const updatedEmployee: IEmployee = {
+            employeeID: employeeID,
             title: title,
             firstName: firstName,
             lastName: lastName,
             birthDate: birthday,
             departmentID: 1
         };
-        props.onEmployeeChange(current);
+        console.log(updatedEmployee);
+        props.onEmployeeChanged(updatedEmployee);
     }, [title, firstName, lastName, birthday])
 
     return (
@@ -36,7 +39,7 @@ const EmployeeForm = (props: any) => {
                 <Col sm={8}>
                     <Input type="text" name="firstName" id="firstName"
                         value={firstName}
-                        onChange={e => setFirstName(e.target.value) } placeholder="first name" />
+                        onChange={e => setFirstName(e.target.value)} placeholder="first name" />
                 </Col>
             </FormGroup>
             <FormGroup row>
@@ -58,6 +61,5 @@ const EmployeeForm = (props: any) => {
         </Form>
     )
 }
-
 
 export default EmployeeForm;
