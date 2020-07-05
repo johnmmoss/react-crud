@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button, Form, FormGroup, Label, Input, Col } from 'reactstrap';
 import { IEmployee } from '../IEmployee';
 
@@ -9,9 +9,8 @@ const EmployeeForm = (props: any) => {
     const [lastName, setLastName] = useState('');
     const [birthday, setBirthday] = useState('');
 
-    const addEmployee = () => {
-
-        const employee: IEmployee = {
+    useEffect(() => {
+        const current: IEmployee = {
             employeeID: 0,
             title: title,
             firstName: firstName,
@@ -19,14 +18,8 @@ const EmployeeForm = (props: any) => {
             birthDate: birthday,
             departmentID: 1
         };
-
-        props.addEmployeeHandler(employee);
-
-        setTitle('');
-        setFirstName('');
-        setLastName('')
-        setBirthday('');
-    }
+        props.onEmployeeChange(current);
+    }, [title, firstName, lastName, birthday])
 
     return (
         <Form>
@@ -43,7 +36,7 @@ const EmployeeForm = (props: any) => {
                 <Col sm={8}>
                     <Input type="text" name="firstName" id="firstName"
                         value={firstName}
-                        onChange={e => setFirstName(e.target.value)} placeholder="first name" />
+                        onChange={e => setFirstName(e.target.value) } placeholder="first name" />
                 </Col>
             </FormGroup>
             <FormGroup row>
@@ -62,7 +55,6 @@ const EmployeeForm = (props: any) => {
                         onChange={e => setBirthday(e.target.value)} placeholder="brithday" />
                 </Col>
             </FormGroup>
-            <Button onClick={addEmployee}>Add</Button>
         </Form>
     )
 }
