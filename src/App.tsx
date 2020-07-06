@@ -9,39 +9,39 @@ function App() {
 
   const [apiError, setApiError] = useState(false);
   const [loadingData, setLoadingData] = useState(true);
-
   const [employees, setEmployees] = useState([] as IEmployee[]);
+  // One EmployeeForm control used twice on the page, once for add and once for edit
+  // Each instance of EmployeeForm has is in its own modal popup 
+  const [showAddModal, setShowAddModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  // updatedEmployee is used by both add and edit to track changes made in the modal popups
+  // employeeChangedHandler is used by BOTH modals to setUpdatedEmployee.
   const [updatedEmployee, setUpdatedEmployee] = useState({} as IEmployee);
   const [currentEmployee, setCurrentEmployee] = useState({} as IEmployee);
-  const [showModal, setShowModal] = useState(false);
+
 
   useEffect(() => {
     loadEmployees();
   }, []);
 
-  const toggleModal = (employee?: IEmployee) => {
-    if (employee !== undefined) {
-      setCurrentEmployee(employee);
-    } else {
-      setCurrentEmployee({} as IEmployee);
-    }
-    setShowModal(!showModal);
+  const toggleAddModal = (employee?: IEmployee) => {
+    setCurrentEmployee({} as IEmployee);
+    setShowAddModal(!showAddModal);
   }
 
-  const deleteEmployeeHandler = (employeeID: number) => {
-    deleteEmployee(employeeID);
+  const toggleEditModal = (employee?: IEmployee) => {
+    if (employee !== undefined) {
+      setCurrentEmployee(employee);
+    }    
+    setShowEditModal(!showEditModal);
   }
 
   const employeeChangedHandler = (updatedEmployee: IEmployee) => {
     setUpdatedEmployee(updatedEmployee);
   }
 
-  const employeeSaveHandler = () => {
-    if (updatedEmployee.employeeID === 0) {
-      addEmployee(updatedEmployee);
-    } else {
-      updateEmployee(updatedEmployee);
-    }
+  const deleteEmployeeHandler = (employeeID: number) => {
+    deleteEmployee(employeeID);
   }
 
   function loadEmployees() {
@@ -72,8 +72,17 @@ function App() {
   }
 
   function updateEmployee(employee: IEmployee) {
-    console.log("Updating Employee...");
-    console.log(employee);
+    var url = 'https://localhost:44384/api/Employee';
+    var bodyText = JSON.stringify(employee);
+    fetch(url, {
+      method: 'POST',
+      body: bodyText,
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+      .then(res => console.log(res))
+      .then(() => loadEmployees())
   }
 
   function deleteEmployee(employeeID: number) {
@@ -145,22 +154,32 @@ function App() {
                       employees.map(x => <Employee
                         key={x.employeeID}
                         data={x}
-                        toggleModal={toggleModal}
+                        toggleModal={toggleEditModal}
                         onDeleteClickHandler={deleteEmployeeHandler} />)
                     }
                   </tbody>
                 </table>
               </Row>
               <Row className="mt-4">
-                <Button color="primary" onClick={() => toggleModal()}>Add New Employee</Button>
-                <Modal isOpen={showModal} toggle={() => toggleModal()} className="one">
-                  <ModalHeader toggle={() => toggleModal()}>Add Employee</ModalHeader>
+                <Button color="primary" onClick={() => toggleAddModal()}>Add New Employee</Button>
+                <Modal isOpen={showAddModal} toggle={() => toggleAddModal()} className="one">
+                  <ModalHeader toggle={() => toggleAddModal()}>Add Employee</ModalHeader>
                   <ModalBody>
                     <EmployeeForm onEmployeeChanged={employeeChangedHandler} current={currentEmployee} />
                   </ModalBody>
                   <ModalFooter>
-                    <Button color="primary" onClick={() => { employeeSaveHandler(); toggleModal(); }}>Save</Button>{' '}
-                    <Button color="secondary" onClick={() => toggleModal()}>Cancel</Button>
+                    <Button color="primary" onClick={() => { addEmployee(updatedEmployee); toggleAddModal(); }}>Save</Button>{' '}
+                    <Button color="secondary" onClick={() => toggleAddModal()}>Cancel</Button>
+                  </ModalFooter>
+                </Modal>
+                <Modal isOpen={showEditModal} toggle={() => toggleEditModal()} className="one">
+                  <ModalHeader toggle={() => toggleEditModal()}>Edit Employee</ModalHeader>
+                  <ModalBody>
+                    <EmployeeForm onEmployeeChanged={employeeChangedHandler} current={currentEmployee} />
+                  </ModalBody>
+                  <ModalFooter>
+                    <Button color="primary" onClick={() => { updateEmployee(updatedEmployee); toggleEditModal(); }}>Save</Button>{' '}
+                    <Button color="secondary" onClick={() => toggleEditModal()}>Cancel</Button>
                   </ModalFooter>
                 </Modal>
               </Row>
