@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
-import { Container, Row, Col, Button, Navbar, NavbarBrand, Nav, NavItem, NavLink, Form, FormGroup, Label, Input, ModalFooter, ModalBody, ModalHeader, Modal } from 'reactstrap';
+import { Container, Row, Col, Button, Navbar, NavbarBrand, Nav, NavItem, NavLink, ModalFooter, ModalBody, ModalHeader, Modal, Alert, Spinner } from 'reactstrap';
 import { IEmployee } from './IEmployee'
 import ConfirmModal from './components/ConfirmModal';
 import EmployeeForm from './components/EmployeeForm';
 
 function App() {
+
+  const [apiError, setApiError] = useState(false);
+  const [loadingData, setLoadingData] = useState(true);
 
   const [employees, setEmployees] = useState([] as IEmployee[]);
   const [updatedEmployee, setUpdatedEmployee] = useState({} as IEmployee);
@@ -46,7 +49,11 @@ function App() {
     fetch(url)
       .then(result => result.json())
       .then(data => setEmployees(data))
-      .catch(error => console.log(error));
+      .catch(error => {
+        setApiError(true);
+        console.log(error)
+      })
+      .finally(() => setLoadingData(false));
   }
 
   function addEmployee(employee: IEmployee) {
@@ -64,7 +71,7 @@ function App() {
       .catch(error => console.error('Error:', error));
   }
 
-  function updateEmployee(employee:IEmployee) {
+  function updateEmployee(employee: IEmployee) {
     console.log("Updating Employee...");
     console.log(employee);
   }
@@ -91,46 +98,74 @@ function App() {
           </NavItem>
         </Nav>
       </Navbar>
+
       <Container className="mt-5">
         <Row>
-          <h1>Employees</h1>
-        </Row>
-        <Row className="mt-4">
-          <table className="table" cellPadding="2" cellSpacing="2">
-            <thead>
-              <tr>
-                <th>Title</th>
-                <th>First Name</th>
-                <th>Last Name</th>
-                <th>&nbsp;</th>
-              </tr>
-            </thead>
-            <tbody>
-              {
-                employees.map(x => <Employee
-                  key={x.employeeID}
-                  data={x}
-                  toggleModal={toggleModal}
-                  onDeleteClickHandler={deleteEmployeeHandler} />)
-              }
-            </tbody>
-          </table>
+          <Col>
+            <h1>Employees</h1>
+          </Col>
         </Row>
       </Container>
+
       <Container>
-        <Row className="mt-4">
-          <Button color="primary" onClick={() => toggleModal()}>Add New Employee</Button>
-          <Modal isOpen={showModal} toggle={() => toggleModal()} className="one">
-            <ModalHeader toggle={() => toggleModal()}>Add Employee</ModalHeader>
-            <ModalBody>
-              <EmployeeForm onEmployeeChanged={employeeChangedHandler} current={currentEmployee} />
-            </ModalBody>
-            <ModalFooter>
-              <Button color="primary" onClick={() => { employeeSaveHandler(); toggleModal(); }}>Add</Button>{' '}
-              <Button color="secondary" onClick={() => toggleModal()}>Cancel</Button>
-            </ModalFooter>
-          </Modal>
-        </Row>
+
+        {loadingData ?
+
+          <Row className="mt-4">
+            <Col>
+              <Spinner color="info" />
+            </Col>
+          </Row>
+
+          :
+
+          apiError ?
+
+            <Row className="mt-4">
+              <Col>
+                <Alert color="danger">There was a problem connecting to the server</Alert>
+              </Col>
+            </Row>
+
+            :
+
+            <>
+              <Row className="mt-4">
+                <table className="table" cellPadding="2" cellSpacing="2">
+                  <thead>
+                    <tr>
+                      <th>Title</th>
+                      <th>First Name</th>
+                      <th>Last Name</th>
+                      <th>&nbsp;</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {
+                      employees.map(x => <Employee
+                        key={x.employeeID}
+                        data={x}
+                        toggleModal={toggleModal}
+                        onDeleteClickHandler={deleteEmployeeHandler} />)
+                    }
+                  </tbody>
+                </table>
+              </Row>
+              <Row className="mt-4">
+                <Button color="primary" onClick={() => toggleModal()}>Add New Employee</Button>
+                <Modal isOpen={showModal} toggle={() => toggleModal()} className="one">
+                  <ModalHeader toggle={() => toggleModal()}>Add Employee</ModalHeader>
+                  <ModalBody>
+                    <EmployeeForm onEmployeeChanged={employeeChangedHandler} current={currentEmployee} />
+                  </ModalBody>
+                  <ModalFooter>
+                    <Button color="primary" onClick={() => { employeeSaveHandler(); toggleModal(); }}>Save</Button>{' '}
+                    <Button color="secondary" onClick={() => toggleModal()}>Cancel</Button>
+                  </ModalFooter>
+                </Modal>
+              </Row>
+            </>
+        }
       </Container>
     </div>
   );
