@@ -2,6 +2,18 @@
 h1 {
   font-size:15px;
 }
-.navbar a {
-  color:white;
+
+
+.header  {
+  width:100%;
+  padding:10px;
+  background-color: seagreen;
+}
+
+.header a, .header a:hover {
+  color:springgreen;
+  font-weight:normal;
+  font-size:1em;
+  margin-right:20px;
+  text-decoration: none;
 }

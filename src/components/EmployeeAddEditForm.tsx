@@ -3,7 +3,7 @@ import { Form, FormGroup, Label, Input, Col } from 'reactstrap';
 import { IEmployee } from '../IEmployee';
 import moment from 'moment'
 
-const EmployeeForm = (props: any) => {
+const EmployeeAddEditForm = (props: any) => {
 
     const [title, setTitle] = useState(props.current.title !== undefined ? props.current.title : '');
     const [employeeID, setEmployeeID] = useState(props.current.employeeID !== undefined ? props.current.employeeID : 0);
@@ -62,4 +62,4 @@ const EmployeeForm = (props: any) => {
     )
 }
 
-export default EmployeeForm;
+export default EmployeeAddEditForm;
